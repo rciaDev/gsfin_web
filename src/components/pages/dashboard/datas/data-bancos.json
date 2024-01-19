@@ -1,0 +1,20 @@
+[
+    {
+        "nome":"Sicredi - Gabriel",
+        "contato": "Mateus Freire",
+        "telefone":"(67) 3285-7632",
+        "ativo":"S"
+    },
+    {
+        "nome":"Sicredi - Caio",
+        "contato": "José Medeiros",
+        "telefone":"(67) 3285-7632",
+        "ativo":"S"
+    },
+    {
+        "nome":"Santander - Caio",
+        "contato": "José Medeiros",
+        "telefone":"(67) 3285-1631",
+        "ativo":"N"
+    }
+]
