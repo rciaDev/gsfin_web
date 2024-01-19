@@ -1,0 +1,45 @@
+[
+    {
+        "nome":"Gabriel",
+        "cpfCnpj": "468.755.088-69",
+        "celuar":"(67) 98182-5843",
+        "endereco":"ROD. MS 306 KM 216",
+        "numero":"0",
+        "cep":"79830-060",
+        "cidade":"Dourados",
+        "uf":"MS",
+        "complemento":"Zona Rural",
+        "bairro":"Zona Rural",
+        "rg":"283153920",
+        "email":"gabrielbangarclprates@gmail.com",
+        "ativo":"S"
+    },
+    {
+        "nome":"Caio Eduardo Avelino",
+        "cpfCnpj": "508.477.518-64",
+        "celuar":"(67) 98182-5843",
+        "endereco":"ROD. MS 306 KM 216",
+        "numero":"0",
+        "cidade":"Dourados",
+        "uf":"MS",
+        "complemento":"Zona Rural",
+        "bairro":"Zona Rural",
+        "rg":"283153920",
+        "email":"gabrielbangarclprates@gmail.com",
+        "ativo":"S"
+    },
+    {
+        "nome":"Helio Rodrigues da Silva",
+        "cpfCnpj": "04.369.329/0001-85",
+        "celuar":"(67) 98182-5843",
+        "endereco":"ROD. MS 306 KM 216",
+        "numero":"0",
+        "cidade":"Dourados",
+        "uf":"MS",
+        "complemento":"Zona Rural",
+        "bairro":"Zona Rural",
+        "rg":"283153920",
+        "email":"gabrielbangarclprates@gmail.com",
+        "ativo":"N"
+    }
+]

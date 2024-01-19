@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react"
 import { faEllipsis, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "@/components/ui/spinner"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader,TableRow } from "@/components/ui/table";
-import DataConsulta from '../datas/bancos.json';
+import DataConsulta from '../datas/clientes.json';
 import NenhumResultadoEncontrado from "@/components/ui/dashboard/nenhum-resultado";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -16,27 +17,17 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-  
+// import { ClienteProps } from "@/global/types";
+import funcoes from "@/global/funcoes";
+import { ClienteProps } from "@/global/types";
 
-interface BancoProps{
-    codigo?:string
-    nome?:string
-    telefone?:string
-    contato?:string
-    codigo_banco?:string
-    agencia?:string
-    conta_corrente?:string
-    codigo_cedente?:string
-    titular_conta?:string
-    cpf_cnpj?:string
-    tipo_conta?:string,
-    ativo?:string
-}
 
-export default function BancosConsulta(){
+export default function ClientesConsulta(){
     const[load, setLoad] = useState(false);
     const[isMounted, setIsMounted] = useState(false)
 
@@ -57,7 +48,7 @@ export default function BancosConsulta(){
 
     if(!isMounted) return null
 
-    const listaBancos = () => {
+    const listaclientes = () => {
         return (
             <div className="rounded-md border">
                 <Table>                        
@@ -65,19 +56,21 @@ export default function BancosConsulta(){
                         <TableRow className="p-0 py-0 rounded">
                             <TableHead>Nome</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Contato</TableHead>
-                            <TableHead>Telefone</TableHead>
+                            <TableHead>CPF/CNPJ</TableHead>
+                            <TableHead>Celular</TableHead>
+                            <TableHead>Cidade</TableHead>
                             <TableHead className="text-right"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody className="">
-                        { DataConsulta.map((banco:BancoProps, index:number) => {
+                        { DataConsulta.map((cliente:ClienteProps, index:number) => {
                             return ( 
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{ banco.nome }</TableCell>
-                                    <TableCell>{ listaStatus(banco.ativo) }</TableCell>
-                                    <TableCell>{ banco.contato }</TableCell>
-                                    <TableCell>{ banco.telefone }</TableCell>
+                                <TableRow key={cliente.codigo}>
+                                    <TableCell className="font-medium">{ funcoes.stripString(cliente.nome,45) }</TableCell>
+                                    <TableCell>{ listaStatus(cliente.ativo) }</TableCell>
+                                    <TableCell>{ cliente.cpfCnpj }</TableCell>
+                                    <TableCell>{ cliente.celuar }</TableCell>
+                                    <TableCell>{ funcoes.trataCidade(cliente.cidade,cliente.uf) }</TableCell>
                                     <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger>
@@ -120,14 +113,14 @@ export default function BancosConsulta(){
         <>
             <div className="w-full flex justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight  pt-3">Bancos</h2>
-                    Aqui estão seus bancos cadastrados
+                    <h2 className="text-2xl font-bold tracking-tight  pt-3">Clientes</h2>
+                    Aqui estão seus clientes cadastrados
                 </div>
                 
 
                 <Button 
                     className="mt-3"
-                    onClick={() => router.push('/dashboard/financeiro/bancos/registrar')}
+                    onClick={() => router.push('/dashboard/clientes/registrar')}
                 >
                     + Adicionar
                 </Button>
@@ -162,7 +155,7 @@ export default function BancosConsulta(){
 
             <div className="w-full mt-3 mb-4 min-h-[200px]">
 
-                { DataConsulta?.length === 0 ? <NenhumResultadoEncontrado /> : listaBancos() }                
+                { DataConsulta?.length === 0 ? <NenhumResultadoEncontrado /> : listaclientes() }                
 
             </div>
     

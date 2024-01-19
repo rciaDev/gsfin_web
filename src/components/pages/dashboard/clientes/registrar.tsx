@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { SelectDefault } from "@/components/ui/select-default";
+import { useRouter } from "next/navigation";
 
 interface BancoProps{
     codigo?:string
@@ -40,8 +41,10 @@ const tipoContaData = [
     }
 ]
 
-export default function Clientes(){
+export default function ClientesRegistra(){
     const[dados, setDados] = useState<BancoProps>();
+
+    const router = useRouter();
     
     async function Cadastrar() {
         
@@ -175,6 +178,7 @@ export default function Clientes(){
                 <div className="w-full flex gap-2 flex justify-end py-3 ">
                     <Button
                         variant={"outline"}
+                        onClick={() => router.push('/dashboard/financeiro/bancos/consultar')}
                     >
                         Cancelar
                     </Button>

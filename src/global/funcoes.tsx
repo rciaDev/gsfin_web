@@ -452,6 +452,13 @@ async function buscaDadosReceita(cnpjValue:any){
     }
 }
 
+const trataCidade = (cidade?:string, uf?:string) => {
+    if(cidade && uf) return cidade+', '+uf;
+
+    if(cidade) return cidade;
+
+    return uf;
+}
 
 export default {  
     formatarCpf,
@@ -479,5 +486,6 @@ export default {
     obterDataAtualFormatadaMesAno,
     obterPrimeiroDiaDoMesAtual,
     get,
-    buscaDadosReceita
+    buscaDadosReceita,
+    trataCidade
 }

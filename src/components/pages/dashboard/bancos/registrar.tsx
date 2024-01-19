@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { SelectDefault } from "@/components/ui/select-default";
+import { useRouter } from "next/navigation";
 
 interface BancoProps{
     codigo?:string
@@ -42,6 +43,8 @@ const tipoContaData = [
 
 export default function Bancos(){
     const[dados, setDados] = useState<BancoProps>();
+
+    const router = useRouter();
     
     async function Cadastrar() {
         
@@ -93,7 +96,7 @@ export default function Bancos(){
                         </div>
 
                         <div className="w-full flex gap-4">
-                            <div className="w-[24%]">
+                            <div className="w-[32%]">
                                 <Label htmlFor="contato">Contato</Label>
                                 <Input 
                                     type="text" 
@@ -104,7 +107,7 @@ export default function Bancos(){
                                 />
                             </div>
 
-                            <div className="w-[15%]">
+                            <div className="w-[20%]">
                                 <Label htmlFor="telefone">Telefone</Label>
                                 <Input 
                                     type="text" 
@@ -157,7 +160,7 @@ export default function Bancos(){
                                 />
                             </div>
 
-                            <div className="w-[15%]">
+                            <div className="w-[20%]">
                                 <Label htmlFor="codigo_cedente">Tipo da Conta</Label>
                                 <SelectDefault 
                                     data={tipoContaData}
@@ -175,6 +178,7 @@ export default function Bancos(){
                 <div className="w-full flex gap-2 flex justify-end py-3 ">
                     <Button
                         variant={"outline"}
+                        onClick={() => router.push('/dashboard/financeiro/bancos/consultar')}
                     >
                         Cancelar
                     </Button>

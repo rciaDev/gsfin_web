@@ -24,12 +24,14 @@ const sidebar = [
             {
                 title:'Clientes',
                 icon:faUser,
-                urlAction:'/dashboard/clientes/consulta'
+                urlAction:'/dashboard/clientes/consultar',
+                urlActive:'/dashboard/clientes/'
             },
             {
                 title:'Fornecedores',
                 icon:faUserTie,
-                urlAction:'/dashboard/fornecedores'
+                urlAction:'/dashboard/fornecedores',
+                urlActive:'/dashboard/fornecedores/'
             }
         ]
     },
@@ -39,22 +41,26 @@ const sidebar = [
             {
                 title:'Bancos',
                 icon:faBank,
-                urlAction:'/dashboard/financeiro/bancos/consultar'
+                urlAction:'/dashboard/financeiro/bancos/consultar',
+                urlActive:'/dashboard/financeiro/bancos/'
             },
             {
                 title:'Plano de Contas',
                 icon:faFileInvoice,
-                urlAction:'/dashboard/financeiro/plano-de-contas'
+                urlAction:'/dashboard/financeiro/plano-de-contas',
+                urlActive:'/dashboard/financeiro/plano-de-contas/'
             },
             {
                 title:'Contas a Pagar',
                 icon:faFileInvoiceDollar,
-                urlAction:'/dashboard/financeiro/contas/pagar'
+                urlAction:'/dashboard/financeiro/contas/pagar',
+                urlActive:'/dashboard/financeiro/contas/pagar'
             },
             {
                 title:'Contas a Receber',
                 icon:faFileInvoiceDollar,
-                urlAction:'/dashboard/financeiro/contas/pagar'
+                urlAction:'/dashboard/financeiro/contas/receber',
+                urlActive:'/dashboard/financeiro/contas/receber'
             },
             {
                 title:'Pagamentos e recebimentos',
@@ -83,7 +89,7 @@ export default function SidebarItems(){
         return items.map((link:any, index:number) => {
             return (
                 <Button 
-                    variant={pathName.indexOf(link.urlAction) !== -1 ? 'secondary' : 'ghost'} 
+                    variant={pathName.indexOf(link.urlActive) !== -1 ? 'secondary' : 'ghost'} 
                     className={`w-full ${menuOpened ? 'justify-start' : 'justify-center'}`}
                     onClick={() => router.push(link.urlAction)}
                     key={index}
