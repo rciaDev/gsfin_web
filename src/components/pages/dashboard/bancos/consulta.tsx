@@ -7,7 +7,7 @@ import { faEllipsis, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "@/components/ui/spinner"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader,TableRow } from "@/components/ui/table";
-import DataConsulta from '../datas/bancos.json';
+import DataConsulta from '../data/bancos.json';
 import NenhumResultadoEncontrado from "@/components/ui/dashboard/nenhum-resultado";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";

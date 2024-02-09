@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useContext, useState } from "react";
 import AlertInBox from "@/components/ui/alert-in-box";
-import { TEXT_CAMPOS_OBRIGATORIOS } from "@/global/texts";
+import { TEXT_CAMPOS_OBRIGATORIOS, TEXT_ERROR_API } from "@/global/texts";
 import api from "@/services/api";
 import alertas from "@/global/alertas";
 import { AuthContext } from "@/context/auth-context";
@@ -95,7 +95,14 @@ export default function Entrar(){
             router.push('/dashboard')
             console.log(result)
         } catch (error) {
-            console.log('Erro ao logar:',error)
+            console.log('Erro ao logar:',error);
+
+            setError({
+                titulo:'',
+                descricao:TEXT_ERROR_API,
+                show:true
+            })
+            
         } finally {
             setLoad(false)
         }

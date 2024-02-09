@@ -27,11 +27,12 @@ export function SelectDefault({
     return (
         <Select 
             onValueChange={onChange} 
-            defaultValue={value}
+            defaultValue={value}            
         >
             <SelectTrigger>
                 <SelectValue placeholder={placeholder ? placeholder : 'Selecione...'} />
             </SelectTrigger>
+
             <SelectContent>
                 { data.map((item, index) => {
                     return <SelectItem 

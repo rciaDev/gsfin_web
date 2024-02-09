@@ -20,7 +20,7 @@ import Spinner from "@/components/ui/spinner";
 
 interface DadosProps {
     dados:CadastroProps,
-    handleChange: Function
+    alteraDados: Function
 }
 
 interface ErrorProps{
@@ -37,7 +37,7 @@ export default function Cadastrar(){
         show:false,
     });
 
-    const { dados, handleChange } = useContext<DadosProps>(CadastroContext);
+    const { dados, alteraDados } = useContext<DadosProps>(CadastroContext);
 
     const router = useRouter();
 
@@ -100,7 +100,7 @@ export default function Cadastrar(){
 
             if(data.data.erro == 1) return ;
 
-            handleChange('nome', data.data.nome)
+            alteraDados('nome', data.data.nome)
         }
     }
 
@@ -155,7 +155,7 @@ export default function Cadastrar(){
                                 className="" 
                                 placeholder=""
                                 name="cnpj"
-                                onChange={(e) => handleChange('cnpj',funcoes.formatarCpf(e.target.value))}
+                                onChange={(e) => alteraDados('cnpj',funcoes.formatarCpf(e.target.value))}
                                 onBlur={buscaDadosReceita}
                                 value={dados?.cnpj}
                             />                            
@@ -168,7 +168,7 @@ export default function Cadastrar(){
                                 className="" 
                                 placeholder=""
                                 name="cnpj"
-                                onChange={(e) => handleChange('nome',e.target.value)}
+                                onChange={(e) => alteraDados('nome',e.target.value)}
                                 value={dados?.nome}
                             />                            
                         </div>                        
@@ -180,7 +180,7 @@ export default function Cadastrar(){
                                 id="email" 
                                 className="" 
                                 placeholder="" 
-                                onChange={(e) => handleChange('email',e.target.value)}
+                                onChange={(e) => alteraDados('email',e.target.value)}
                                 value={dados?.email}
                             />
                         </div>
@@ -193,7 +193,7 @@ export default function Cadastrar(){
                                     id="senha"
                                     placeholder="*****"
                                     autoComplete="no"                                    
-                                    onChange={(e) => handleChange('senha',e.target.value)}
+                                    onChange={(e) => alteraDados('senha',e.target.value)}
                                     value={dados?.senha}
                                 />
 
@@ -205,7 +205,7 @@ export default function Cadastrar(){
                                     name="confirma-senha"
                                     id="confirma-senha"
                                     placeholder="*****"                                    
-                                    onChange={(e) => handleChange('confirmaSenha',e.target.value)}
+                                    onChange={(e) => alteraDados('confirmaSenha',e.target.value)}
                                     value={dados?.confirmaSenha}
                                 />
                             </div>

@@ -17,7 +17,7 @@ import { AuthContext } from "@/context/auth-context";
 
 interface DadosProps {
     dados:CadastroProps,
-    handleChange: Function
+    alteraDados: Function
 }
 
 interface UserProps{

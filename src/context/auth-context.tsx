@@ -1,7 +1,7 @@
 "use client"
 
 import LoadingPage from "@/components/ui/loading-page";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePathname  } from "next/navigation";
 import { parseCookies, setCookie } from "nookies";
 import React, { useEffect, useState } from "react";
@@ -14,12 +14,14 @@ export const AuthContext:any = React.createContext({});
 
 export function AuthProvider({ children } : { children:React.ReactNode }){
     const[user,setUser] = useState<UserProps>();
-    // const[expandMain, setExpandMain] = useState(false);
     const[menuOpened, setMenuOpened] = useState(true);
     const[load,setLoad] = useState(false);
 
     const router = useRouter();
     const pathName = usePathname();
+
+    const searchParams = useSearchParams()
+    const params = new URLSearchParams(searchParams);
     
     const TOKEN_KEY = "@gsfin-token"
 
@@ -80,47 +82,57 @@ export function AuthProvider({ children } : { children:React.ReactNode }){
     //     localStorage.setItem('menuOpened',menuOpened ? 'true' : 'false')
     // },[menuOpened])
 
-    useEffect(() => {
-        async function handleUser(){
-            setLoad(true)
+    async function handleUser(){
+        setLoad(true)
 
-            try {                
-                const token = getToken();
-                const db    = localStorage.getItem('db');
-                
-                if(!token && pathName.indexOf('dashboard') != -1){
-                    setLogoutToken();
-                    return ;
-                }      
+        try {                
+            const token = getToken();
+            const db    = localStorage.getItem('db');
+            
+            // console.log('user:',user)
+            // console.log('revalidade:',params.get('revalidate'))
 
-                const data_user = await api.get('/dados-usuario?db='+db);
-
-                if(data_user.data.erro == '99'){
-                    setLogoutToken();
-
-                    router.push('/entrar')
-                }
-
-                if(data_user.data.erro == '1'){
-                    alertas.alertaErro('Erro ao atualizar pagina')
-                    return ;
-                }
-                
-                setUser(data_user.data);
-                
-                if(pathName.indexOf('entrar') !== -1)
-                    router.push('/dashboard');                
-            } catch (error) {
-                console.log('erro ',error)                
-            } finally {
-                setLoad(false)
+            if(user && params.get('revalidate') == 'false'){
+                console.log('Não chamou')
+                return ;
             }
-        }
 
-        if(!user && pathName.startsWith('/dashboard')){
-            console.log('Chamou data')
-            handleUser()
+                                    
+            if(!token && pathName.indexOf('dashboard') != -1){
+                setLogoutToken();
+                return ;
+            }
+
+            // return false;
+            const data_user = await api.get('/dados-usuario?db='+db);
+
+            // console.log(data_user)
+
+            if(data_user.data.erro == '99'){
+                setLogoutToken();
+
+                router.push('/entrar')
+            }
+
+            if(data_user.data.erro == '1'){
+                alertas.alertaErro('Erro ao atualizar pagina')
+                return ;
+            }
+            
+            setUser(data_user.data);
+            
+            if(pathName.indexOf('entrar') !== -1)
+                router.push(`/dashboard?${params.get('token') !== '' ? 'revalidate=false' : ''}`);
+        } catch (error) {
+            console.log('erro ',error)                
+        } finally {
+            setLoad(false)
         }
+    }
+
+    useEffect(() => {
+        if(!user && pathName.startsWith('/dashboard') && params.get('revalidate') != 'false')
+            handleUser()
     },[router]);
     
   
@@ -133,6 +145,7 @@ export function AuthProvider({ children } : { children:React.ReactNode }){
                 setLoginToken,
                 setLogoutToken,
                 Logout,
+                handleUser,
                 // expandMain,
                 // setExpandMain,
                 menuOpened,

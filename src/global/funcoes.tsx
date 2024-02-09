@@ -2,6 +2,7 @@ import api from "../services/api";
 import axios from 'axios';
 import { setCookie } from 'nookies';
 import Router from 'next/router';
+import { CepProps } from "./types";
 
 const URL_BING = 'https://dev.virtualearth.net'
 
@@ -54,18 +55,13 @@ function somenteNumero(str:any){
 
     return str.replace(/[^0-9]/g,'');
 }
+ 
+async function buscaCep(cep:string):Promise<CepProps | null>{
+    if(somenteNumero(cep).length < 8) return null;
 
-async function buscaCep(cep:string){
-    let response = {};
-
-    if(cep.length >= 8){
-        const data = await api.get(`https://viacep.com.br/ws/${cep}/json`)
-
-        response = data.data;            
-        
-        return response;
-    }
-    return response;
+    const data = await api.get(`https://viacep.com.br/ws/${cep}/json`)
+    
+    return data.data;
 }
 
 
@@ -426,9 +422,13 @@ function obterPrimeiroDiaDoMesAtual() {
 
 async function buscaDadosReceita(cnpjValue:any){
     if(!cnpjValue) return undefined
+
+    if(!validaCNPJ(cnpjValue)) return undefined;
     
     try {
         const cnpj = somenteNumero(cnpjValue);
+
+        if(cnpj.length < 14) return undefined;
 
         // return dadosExemplo;
         // const result = await axios.get(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`, 

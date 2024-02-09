@@ -17,7 +17,7 @@ export function CadastroProvider({ children } : { children:React.ReactNode }){
     const[dados, setDados] = useState<CadastroProps>({})
     const[load, setLoad] = useState(false);
 
-    const handleChange = (campo:string, value:string) => {
+    const alteraDados = (campo:string, value:string) => {
         setDados((p) => { return {...p, [campo]:value}})
     }
 
@@ -25,7 +25,7 @@ export function CadastroProvider({ children } : { children:React.ReactNode }){
         <CadastroContext.Provider 
             value={{
                 dados,
-                handleChange
+                alteraDados
             }}
         >
             { load ? <LoadingPage /> : children }

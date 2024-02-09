@@ -8,10 +8,9 @@ import { faEllipsis, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "@/components/ui/spinner"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader,TableRow } from "@/components/ui/table";
-import DataConsulta from '../datas/clientes.json';
 import NenhumResultadoEncontrado from "@/components/ui/dashboard/nenhum-resultado";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import {
     DropdownMenu,
@@ -22,34 +21,196 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination"
+
+  
 // import { ClienteProps } from "@/global/types";
 import funcoes from "@/global/funcoes";
 import { ClienteProps } from "@/global/types";
+import { SelectDefault } from "@/components/ui/select-default";
+import alertas from "@/global/alertas";
+import ModalConfirmaOperacao from "@/components/ui/dashboard/dialog-confirma";
 
+const optionsSelectFiltro = [
+    {
+        text:'Geral',
+        value:'geral'
+    },
+    { 
+        text:'Nome',
+        value: 'nome'
+    },
+    { 
+        text:'Código',
+        value: 'id'
+    },
+    { 
+        text:'CPF/CNPJ',
+        value: 'cnpj'
+    },
+    { 
+        text:'Cidade',
+        value: 'cidade'
+    },
+    { 
+        text:'UF',
+        value: 'uf'
+    }
+]
 
 export default function ClientesConsulta(){
     const[load, setLoad] = useState(false);
-    const[isMounted, setIsMounted] = useState(false)
+    const[isMounted, setIsMounted] = useState(false);
+
+    const[dados, setDados] = useState<ClienteProps[]>([]);
+    const[filtro, setFiltro] = useState('');
+    const[conteudo, setConteudo] = useState('');
 
     const router = useRouter();
 
-    const buscaDados = async () => {        
-        setLoad(true)
+    const params = useSearchParams()
 
-        // simula busca
-        setTimeout(() => {
+    const buscaDados = async (isPagination = false) => {      
+        setLoad(true);
+
+        try {
+            if(filtro !== '' && filtro !== 'geral' && conteudo.trim() == '') return ;
+
+
+            let cUrl = isPagination ? 
+                       `/clientes?filtro=${filtro}&conteudo=${conteudo}&pageSize=10` :
+                       `/clientes?filtro=${params.get('filtro')}&conteudo=${params.get('conteudo')}&page=${params.get('page')}&pageSize=10`
+
+            const data = await funcoes.get(cUrl);
+
+            if(!data?.data) return ;
+
+            if(data?.data.erro == '1'){
+                alertas.alertaErro(data.data.mensagem)
+                return ;
+            }
+            console.log(data.data)
+
+            setDados(data.data)                        
+        } catch (error) {
+            alertas.alertaErroServidor();
+        } finally {
             setLoad(false)
-        },300)
+        }        
+    }
+
+    const proximaPagina = () => {
+        const paginaAtual = funcoes.formatarNumero(params.get('page') || '1');
+        
+        return paginaAtual + 1
+    }
+
+    const voltaPagina = () => {
+        const paginaAtual = funcoes.formatarNumero(params.get('page') || '1');
+        
+        return paginaAtual == 0 || paginaAtual == 1 ? '1' : paginaAtual - 1
+    }
+
+    const trataPaginacao = () => {
+        return (
+            <Pagination className="flex justify-end">
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious 
+                            href={
+                                `/dashboard/clientes/consultar?page=${voltaPagina()}&filtro=${filtro.trim()}&conteudo=${conteudo}`
+                            } 
+                        />
+                    </PaginationItem>
+
+                    { trataLinks() }
+
+                    <PaginationItem>
+                        <PaginationNext
+                            href={
+                                `/dashboard/clientes/consultar?page=${proximaPagina()}&filtro=${filtro.trim()}&conteudo=${conteudo}`
+                            } 
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        )
+    }
+
+
+    const trataLinks = () => {
+        const itensPorPagina = 10;
+
+        const totalPaginas = Math.ceil(100 / itensPorPagina);
+
+        const links = [];
+
+        for (let nPage = 0; nPage < totalPaginas; nPage++) {
+            if(nPage == 5) {
+                links.push(
+                    <PaginationItem>
+                        <PaginationEllipsis />
+                    </PaginationItem>
+                )
+
+                break;
+            }else {                
+                links.push(
+                    <PaginationItem>
+                        <PaginationLink 
+                            href={`/dashboard/clientes/consultar?page=${nPage + 1}&filtro=${filtro}&conteudo=${conteudo}`} 
+                            isActive={funcoes.formatarNumero(params.get('page') || '1')  == nPage + 1}
+                        >
+                            { nPage + 1 }
+                        </PaginationLink>
+                    </PaginationItem>
+                )
+            }            
+        } 
+
+        return links
+    }
+
+    const trataPaginacaoUrl = () => {
+        try {
+            if(params.get('page') !== ''){
+                buscaDados(true);
+                setFiltro(params.get('filtro') || '');
+                setConteudo(params.get('conteudo') || '');                
+            }
+                        
+        } catch (error) {
+            
+        }        
     }
     
     useEffect(() => {
         setIsMounted(true)
     },[])
 
+    useEffect(() => {
+        if(!isMounted) return ;
+
+        trataPaginacaoUrl()
+    },[isMounted])
+
     if(!isMounted) return null
 
     const listaclientes = () => {
         return (
+            <>
+            <div className="w-full py-2">
+                { trataPaginacao() }        
+            </div>
             <div className="rounded-md border">
                 <Table>                        
                     <TableHeader className="max-h-[20px]">
@@ -62,13 +223,13 @@ export default function ClientesConsulta(){
                             <TableHead className="text-right"></TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody className="">
-                        { DataConsulta.map((cliente:ClienteProps, index:number) => {
+                    <TableBody className="min-w-full h-[60vh] overflow-y-auto">
+                        { dados.map((cliente:ClienteProps) => {
                             return ( 
                                 <TableRow key={cliente.codigo}>
                                     <TableCell className="font-medium">{ funcoes.stripString(cliente.nome,45) }</TableCell>
                                     <TableCell>{ listaStatus(cliente.ativo) }</TableCell>
-                                    <TableCell>{ cliente.cpfCnpj }</TableCell>
+                                    <TableCell>{ cliente.cnpj }</TableCell>
                                     <TableCell>{ cliente.celuar }</TableCell>
                                     <TableCell>{ funcoes.trataCidade(cliente.cidade,cliente.uf) }</TableCell>
                                     <TableCell className="text-right">
@@ -83,14 +244,22 @@ export default function ClientesConsulta(){
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-[160px]">                                            
-                                            <DropdownMenuItem className="flex gap-3 ">
+                                            <DropdownMenuItem 
+                                                className="flex gap-3 "
+                                                onClick={() => router.push(`/dashboard/clientes/registrar?id=${cliente.codigo}`)}
+                                            >
                                                 <FontAwesomeIcon icon={faEdit} className="w-3 h-3 text-muted-foreground" />
                                                 Editar
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className="flex gap-3 ">
+                                            
+                                            <DropdownMenuItem 
+                                                className="flex gap-3"
+                                                onClick={() => router.push(`/dashboard/clientes/registrar?id=${cliente.codigo}`)}
+                                            >
                                                 <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 text-muted-foreground" />
                                                 Excluir
                                             </DropdownMenuItem>
+                                            <ModalConfirmaOperacao />
                                         </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -100,6 +269,7 @@ export default function ClientesConsulta(){
                     </TableBody>
                 </Table>
             </div>
+            </>
         )         
     }
 
@@ -130,9 +300,18 @@ export default function ClientesConsulta(){
    
             <div className="h-full flex-1 flex-col space-y-8 md:flex">
                 <div className="w-full flex gap-4 mt-5">
+                    <div className="w-[200px]">
+                        <SelectDefault 
+                            data={optionsSelectFiltro}
+                            onChange={(value) => setFiltro(value)}
+                            placeholder="Geral"
+                        />
+                    </div>
+                    
                     <Input 
                         className="w-[70%] md:w-[50%]"
-                        placeholder="Filtre pelo nome..."
+                        placeholder="Informe o conteúdo..."
+                        onChange={(e) => setConteudo(e.target.value)}
                     />
 
                     <Button
@@ -155,7 +334,7 @@ export default function ClientesConsulta(){
 
             <div className="w-full mt-3 mb-4 min-h-[200px]">
 
-                { DataConsulta?.length === 0 ? <NenhumResultadoEncontrado /> : listaclientes() }                
+                { dados?.length === 0 ? <NenhumResultadoEncontrado /> : listaclientes() }                
 
             </div>
     

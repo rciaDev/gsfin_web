@@ -50,13 +50,13 @@ export default function Bancos(){
         
     }
 
-    const handleChange = (campo: keyof BancoProps, value:string) => {
+    const alteraDados = (campo: keyof BancoProps, value:string) => {
         setDados((p) => { return {...p, [campo]:value}})
     }
 
-    const handleChangeTipoConta = (value:string) => {
+    const alteraDadosTipoConta = (value:string) => {
         console.log('a')
-        handleChange('tipo_conta', value)
+        alteraDados('tipo_conta', value)
     }
 
     return (
@@ -81,7 +81,7 @@ export default function Bancos(){
                                     id="nome" 
                                     placeholder="Ex: Sicredi"
                                     value={dados?.nome}
-                                    onChange={(e) => handleChange('nome', e.target.value)}
+                                    onChange={(e) => alteraDados('nome', e.target.value)}
                                 />
                             </div>
                             <div className="w-[30%] flex flex-col">
@@ -90,7 +90,7 @@ export default function Bancos(){
                                     checked={dados?.ativo == 'S'}
                                     value={'S'}
                                     className="mt-3"
-                                    onCheckedChange={() => handleChange('ativo', dados?.ativo == 'S' ? 'N' : 'S')}
+                                    onCheckedChange={() => alteraDados('ativo', dados?.ativo == 'S' ? 'N' : 'S')}
                                 />
                             </div>
                         </div>
@@ -102,7 +102,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="contato"
                                     value={dados?.contato}
-                                    onChange={(e) => handleChange('contato', e.target.value)}
+                                    onChange={(e) => alteraDados('contato', e.target.value)}
                                     placeholder="Ex: José Antônio"
                                 />
                             </div>
@@ -113,7 +113,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="telefone"
                                     value={dados?.telefone}
-                                    onChange={(e) => handleChange('telefone', e.target.value)}                                    
+                                    onChange={(e) => alteraDados('telefone', e.target.value)}                                    
                                 />
                             </div>
                         </div>
@@ -125,7 +125,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="codigo_banco"
                                     value={dados?.codigo_banco}
-                                    onChange={(e) => handleChange('codigo_banco', e.target.value)}
+                                    onChange={(e) => alteraDados('codigo_banco', e.target.value)}
                                     placeholder="Ex: 748"
                                 />
                             </div>
@@ -136,7 +136,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="agencia"
                                     value={dados?.agencia}
-                                    onChange={(e) => handleChange('agencia', e.target.value)}                                    
+                                    onChange={(e) => alteraDados('agencia', e.target.value)}                                    
                                 />
                             </div>
 
@@ -146,7 +146,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="conta_corrente"
                                     value={dados?.conta_corrente}
-                                    onChange={(e) => handleChange('conta_corrente', e.target.value)}                                    
+                                    onChange={(e) => alteraDados('conta_corrente', e.target.value)}                                    
                                 />
                             </div>
 
@@ -156,7 +156,7 @@ export default function Bancos(){
                                     type="text" 
                                     id="codigo_cedente"
                                     value={dados?.codigo_cedente}
-                                    onChange={(e) => handleChange('codigo_cedente', e.target.value)}                                    
+                                    onChange={(e) => alteraDados('codigo_cedente', e.target.value)}                                    
                                 />
                             </div>
 
@@ -164,7 +164,7 @@ export default function Bancos(){
                                 <Label htmlFor="codigo_cedente">Tipo da Conta</Label>
                                 <SelectDefault 
                                     data={tipoContaData}
-                                    onChange={() => handleChangeTipoConta}
+                                    onChange={() => alteraDadosTipoConta}
                                 />
                             </div>
                         </div>

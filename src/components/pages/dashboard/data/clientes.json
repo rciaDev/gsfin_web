@@ -1,7 +1,7 @@
 [
     {
         "nome":"Gabriel",
-        "cpfCnpj": "468.755.088-69",
+        "cnpj": "468.755.088-69",
         "celuar":"(67) 98182-5843",
         "endereco":"ROD. MS 306 KM 216",
         "numero":"0",
@@ -16,7 +16,7 @@
     },
     {
         "nome":"Caio Eduardo Avelino",
-        "cpfCnpj": "508.477.518-64",
+        "cnpj": "508.477.518-64",
         "celuar":"(67) 98182-5843",
         "endereco":"ROD. MS 306 KM 216",
         "numero":"0",
@@ -30,7 +30,7 @@
     },
     {
         "nome":"Helio Rodrigues da Silva",
-        "cpfCnpj": "04.369.329/0001-85",
+        "cnpj": "04.369.329/0001-85",
         "celuar":"(67) 98182-5843",
         "endereco":"ROD. MS 306 KM 216",
         "numero":"0",
