@@ -22,7 +22,7 @@ interface ClienteProps{
     nome?:string,
     fantasia?:string,
     cnpj?:string,
-    celuar?: string,
+    celular?: string,
     cep?:string,
     endereco?:string,
     numero?:string,
@@ -34,6 +34,22 @@ interface ClienteProps{
     email?:string,
     ativo?:string
 }
+
+interface BancoProps{
+    codigo?:string
+    nome?:string
+    telefone?:string
+    contato?:string
+    codigo_banco?:string
+    agencia?:string
+    conta_corrente?:string
+    codigo_cedente?:string
+    titular_conta?:string
+    cpf_cnpj?:string
+    tipo_conta?:string,
+    ativo?:string
+}
+
 
 type CepProps = {
     logradouro:string,
@@ -50,5 +66,6 @@ export type {
     CadastroProps,
     UserProps,
     ClienteProps,
-    CepProps
+    CepProps,
+    BancoProps
 }

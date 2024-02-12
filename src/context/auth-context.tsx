@@ -153,7 +153,8 @@ export function AuthProvider({ children } : { children:React.ReactNode }){
             }}
         >
             <ToastContainer />
-            { load ? 'Buscando dados' : children }
+            { load && <LoadingPage /> }
+            { children }
         </AuthContext.Provider>
     );
 }

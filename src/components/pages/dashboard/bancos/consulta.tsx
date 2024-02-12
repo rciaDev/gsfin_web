@@ -6,49 +6,77 @@ import { useEffect, useState } from "react"
 import { faEllipsis, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "@/components/ui/spinner"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader,TableRow } from "@/components/ui/table";
 import DataConsulta from '../data/bancos.json';
 import NenhumResultadoEncontrado from "@/components/ui/dashboard/nenhum-resultado";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-  
+import { BancoProps } from "@/global/types";  
+import TabelaBancos from "./tabela";
+import { SelectDefault } from "@/components/ui/select-default";
+import funcoes from "@/global/funcoes";
+import alertas from "@/global/alertas";
+import { PAGE_SIZE } from "@/global/constantes";
 
-interface BancoProps{
-    codigo?:string
-    nome?:string
-    telefone?:string
-    contato?:string
-    codigo_banco?:string
-    agencia?:string
-    conta_corrente?:string
-    codigo_cedente?:string
-    titular_conta?:string
-    cpf_cnpj?:string
-    tipo_conta?:string,
-    ativo?:string
+
+interface ConsultaProps {
+    quantidade_registros?:string,
+    itens?:BancoProps[]
 }
+
+
+const optionsSelectFiltro = [
+    {
+        text:'Geral',
+        value:'geral'
+    },
+    { 
+        text:'Nome',
+        value: 'nome'
+    },
+    { 
+        text:'Código',
+        value: 'id'
+    }    
+]
 
 export default function BancosConsulta(){
     const[load, setLoad] = useState(false);
-    const[isMounted, setIsMounted] = useState(false)
+    const[isMounted, setIsMounted] = useState(false);
+    const[filtro, setFiltro] = useState('');
+    const[conteudo, setConteudo] = useState('');
+    
+    const[dados, setDados] = useState<ConsultaProps>();
 
     const router = useRouter();
+    const params = useSearchParams();
 
-    const buscaDados = async () => {        
-        setLoad(true)
+    const buscaDados = async (isPagination = false) => {        
+        setLoad(true);
 
-        // simula busca
-        setTimeout(() => {
+        try {
+            if(filtro !== '' && filtro !== 'geral' && conteudo.trim() == '') return ;
+
+            let cUrl = !isPagination ? 
+                       `/bancos?filtro=${filtro}&conteudo=${conteudo}&page=${params.get('page')}&pageSize=${PAGE_SIZE}` :
+                       `/bancos?filtro=${params.get('filtro')}&conteudo=${params.get('conteudo')}&page=${params.get('page')}&pageSize=${PAGE_SIZE}`
+
+            const data = await funcoes.get(cUrl);
+
+            if(!data?.data) return ;
+
+            if(data?.data.erro == '1'){
+                alertas.alertaErro(data.data.mensagem)
+                return ;
+            }
+
+            setDados(data.data)                        
+        } catch (error) {
+            alertas.alertaErroServidor();
+        } finally {
             setLoad(false)
-        },300)
+        }        
     }
     
     useEffect(() => {
@@ -56,65 +84,6 @@ export default function BancosConsulta(){
     },[])
 
     if(!isMounted) return null
-
-    const listaBancos = () => {
-        return (
-            <div className="rounded-md border">
-                <Table>                        
-                    <TableHeader className="max-h-[20px]">
-                        <TableRow className="p-0 py-0 rounded">
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Contato</TableHead>
-                            <TableHead>Telefone</TableHead>
-                            <TableHead className="text-right"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody className="">
-                        { DataConsulta.map((banco:BancoProps, index:number) => {
-                            return ( 
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{ banco.nome }</TableCell>
-                                    <TableCell>{ listaStatus(banco.ativo) }</TableCell>
-                                    <TableCell>{ banco.contato }</TableCell>
-                                    <TableCell>{ banco.telefone }</TableCell>
-                                    <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger>
-                                            <Button 
-                                                variant={'outline'}
-                                                size={'sm'}
-                                                className="flex h-6 w-6 p-0 data-[state=open]:bg-muted"
-                                            >
-                                                <FontAwesomeIcon icon={faEllipsis} className="w-4 h-3"/>
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[160px]">                                            
-                                            <DropdownMenuItem className="flex gap-3 ">
-                                                <FontAwesomeIcon icon={faEdit} className="w-3 h-3 text-muted-foreground" />
-                                                Editar
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="flex gap-3 ">
-                                                <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 text-muted-foreground" />
-                                                Excluir
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
-            </div>
-        )         
-    }
-
-    const listaStatus = (status?:string) => {
-        return status === 'S' ? 
-            <Badge variant={'outline'}>Ativo</Badge> : 
-            <Badge variant={'outline'} className="text-destructive bg-white border-destructive">Inativo</Badge>
-    }
 
     return (
         <>
@@ -137,9 +106,18 @@ export default function BancosConsulta(){
    
             <div className="h-full flex-1 flex-col space-y-8 md:flex">
                 <div className="w-full flex gap-4 mt-5">
+                    <div className="w-[200px]">
+                        <SelectDefault 
+                            data={optionsSelectFiltro}
+                            onChange={(value) => setFiltro(value)}
+                            placeholder="Geral"
+                        />
+                    </div>
+
                     <Input 
                         className="w-[70%] md:w-[50%]"
                         placeholder="Filtre pelo nome..."
+                        onChange={(e) => setConteudo(e.target.value)}
                     />
 
                     <Button
@@ -162,7 +140,7 @@ export default function BancosConsulta(){
 
             <div className="w-full mt-3 mb-4 min-h-[200px]">
 
-                { DataConsulta?.length === 0 ? <NenhumResultadoEncontrado /> : listaBancos() }                
+                { !dados?.itens || dados?.itens.length === 0 ? <NenhumResultadoEncontrado /> : <TabelaBancos bancos={dados?.itens} /> }
 
             </div>
     

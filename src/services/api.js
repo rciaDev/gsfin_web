@@ -7,8 +7,7 @@ const api = axios.create({
     headers:{
         "Access-Control-Allow-Origin": "*",
         'Content-Type': 'application/json*'
-    }    
-    
+    }     
 });
 
 api.interceptors.request.use(async config => {

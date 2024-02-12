@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { useState } from "react"
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClienteProps } from "@/global/types";
 import funcoes from "@/global/funcoes";
 import ModalConfirmaOperacao from "@/components/ui/dashboard/dialog-confirma";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faArrowLeft, faSave, faSearch } from '@fortawesome/free-solid-svg-icons';
 import Spinner from '@/components/ui/spinner';
 import alertas from '@/global/alertas';
 
@@ -24,7 +24,7 @@ export default function ClientesRegistra(){
         ativo:'S',
         bairro:'',
         cep:'',
-        celuar:'',
+        celular:'',
         cidade:'',
         complemento:'',
         cnpj:'',
@@ -38,6 +38,9 @@ export default function ClientesRegistra(){
     });
 
     const router = useRouter();
+    const searchParams = useSearchParams()
+    const params = new URLSearchParams(searchParams);
+    const pathName = usePathname();
 
     async function Cadastrar() {
         setLoad(true)
@@ -45,7 +48,7 @@ export default function ClientesRegistra(){
             if(!validaCampos())
                 return false;
                
-            const data = await funcoes.post('/clientes/registrar', dados);
+            const data = await funcoes.post('/clientes', dados);
 
             if(data?.data.erro == '1') {
                 alertas.alertaErro(data.data.mensagem)
@@ -64,10 +67,37 @@ export default function ClientesRegistra(){
 
     async function buscaCliente(){
         try {
-            const data = await funcoes.get('/clientes/')
+            const data = await funcoes.get(`/clientes?id=${params.get('id')}`)
+
+            if (data?.data.erro == '1'){
+                alertas.alertaErro(data?.data.mensagem)
+                return ;
+            }
+            
+            setDados(data?.data)
         } catch (error) {
             
         }
+    }
+
+    async function novoCliente(){
+        setDados({
+            codigo:'0',
+            ativo:'S',
+            bairro:'',
+            cep:'',
+            celular:'',
+            cidade:'',
+            complemento:'',
+            cnpj:'',
+            email:'',
+            endereco:'',
+            fantasia:'',
+            nome:'',
+            numero:'',
+            rg:'',
+            uf:''
+        })
     }
 
     const alteraDados = (campo: keyof ClienteProps, value:string) => {
@@ -123,7 +153,7 @@ export default function ClientesRegistra(){
                     endereco:data.endereco,
                     bairro:data.bairro,
                     email:data.email,
-                    numero:data.numero,
+                    numero: funcoes.somenteNumero(data.numero),
                     cidade: data.cidade,
                     uf:data.uf
                 }
@@ -133,6 +163,13 @@ export default function ClientesRegistra(){
         }
         
     }
+
+    useEffect(() => {
+        if (params.get('id') != undefined && params.get('id') !== '')
+            buscaCliente();
+        else 
+            novoCliente();
+    },[pathName, searchParams])
 
     return (
         <>
@@ -148,6 +185,7 @@ export default function ClientesRegistra(){
                                 id="cnpj"
                                 value={dados?.cnpj}
                                 onChange={(e) => alteraDados('cnpj', funcoes.formatarCpf(e.target.value))}
+                                autoFocus={true}
                             />
 
                             <Button 
@@ -169,7 +207,7 @@ export default function ClientesRegistra(){
                     </div>
 
                     <div className="w-1/3 lg:w-1/4">
-                        <Label htmlFor="rgIe">RG/IE *</Label>
+                        <Label htmlFor="rgIe">RG/IE</Label>
                         <Input 
                             type="text" 
                             id="cpfCnpj"
@@ -221,8 +259,8 @@ export default function ClientesRegistra(){
                         <Input 
                             type="text" 
                             id="celuar"
-                            value={dados?.celuar}
-                            onChange={(e) => alteraDados('celuar', funcoes.formataCelular(e.target.value))}                            
+                            value={dados?.celular}
+                            onChange={(e) => alteraDados('celular', funcoes.formataCelular(e.target.value))}                            
                         />
                     </div>
 
@@ -317,10 +355,22 @@ export default function ClientesRegistra(){
                 <div className="w-full flex gap-2 flex justify-end py-3 ">
                     <Button
                         variant={"outline"}
+                        onClick={() => router.push('/dashboard/clientes/registrar')}
+                        disabled={load}
+                        className='flex gap-2'
+                    >
+                        <FontAwesomeIcon icon={faAdd} />
+                        Novo
+                    </Button>
+
+                    <Button
+                        variant={"outline"}
                         onClick={() => router.push('/dashboard/clientes/consultar')}
                         disabled={load}
+                        className='flex gap-2'
                     >
-                        Cancelar
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                        Voltar
                     </Button>
 
                     <ModalConfirmaOperacao
@@ -328,15 +378,10 @@ export default function ClientesRegistra(){
                         title="Confirmação da operação"
                         textDescription="Você confirma a atualização ou criação desse cliente?"       
                         onConfirm={() => Cadastrar()}
-                        onLoad={load}          
+                        onLoad={load}
+                        icon={faSave}  
                     />
 
-                    {/* <ModalConfirmaOperacao /> */}
-                    {/* <Button
-                        onClick={() => confirmaOperacao()}                        
-                    >
-                        Salvar
-                    </Button> */}
                 </div>
 
             </div>

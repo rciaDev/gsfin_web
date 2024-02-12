@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button"
 import Spinner from "../spinner";
 import { cn } from "@/lib/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 export interface DialogConfirmaProps {     
     title?:string;
@@ -26,6 +28,8 @@ export interface DialogConfirmaProps {
     onConfirm?:Function;
     onLoad?:boolean;
     classNameButton?:string;
+    icon?:IconProp;
+    classNameIcon?:String;
 }
 
 export default function ModalConfirmaOperacao(props:DialogConfirmaProps) {
@@ -36,8 +40,9 @@ export default function ModalConfirmaOperacao(props:DialogConfirmaProps) {
                 <Button 
                     variant={props.variant || 'default'}
                     disabled={props.onLoad || false}
-                    className={cn("min-w-[100px]",props.classNameButton)}
+                    className={cn("min-w-[100px] flex gap-2 ",props.classNameButton)}                    
                 >
+                    { props?.icon && <FontAwesomeIcon icon={props.icon} className={cn("w-4 h-4 ",props.classNameIcon)}/>}
                     { props?.onLoad ? <Spinner className="w-4 h-4 fill-primary"/> : props.textButton }
                 </Button>
             </AlertDialogTrigger>
@@ -56,7 +61,7 @@ export default function ModalConfirmaOperacao(props:DialogConfirmaProps) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                     onClick={() => props.onConfirm && props.onConfirm() }                     
-                >
+                >                    
                     { props.textButtonConfirm || 'Confirmar' }
                 </AlertDialogAction>
                 </AlertDialogFooter>

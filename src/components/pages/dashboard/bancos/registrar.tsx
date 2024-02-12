@@ -13,7 +13,13 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { SelectDefault } from "@/components/ui/select-default";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import funcoes from "@/global/funcoes";
+import alertas from "@/global/alertas";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAdd, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import ModalConfirmaOperacao from "@/components/ui/dashboard/dialog-confirma";
+import { faSave } from "@fortawesome/free-regular-svg-icons";
 
 interface BancoProps{
     codigo?:string
@@ -42,12 +48,60 @@ const tipoContaData = [
 ]
 
 export default function Bancos(){
-    const[dados, setDados] = useState<BancoProps>();
+    const[load, setLoad] = useState(false);
+    const[dados, setDados] = useState<BancoProps>({
+        codigo:'0',
+        nome:'',
+        telefone:'',
+        contato:'',
+        codigo_banco:'',
+        agencia:'',
+        conta_corrente:'',
+        codigo_cedente:'',
+        titular_conta:'',
+        cpf_cnpj:'',
+        tipo_conta:'',
+        ativo:'S'
+    });
 
     const router = useRouter();
+    const searchParams = useSearchParams()
+    const params = new URLSearchParams(searchParams);
+    const pathName = usePathname();
+
     
-    async function Cadastrar() {
-        
+    async function Cadastrar() {        
+        setLoad(true)
+        try {
+            if(!validaCampos())
+                return false;
+
+            console.log(JSON.stringify(dados))
+               
+            const data = await funcoes.post('/bancos', dados);
+
+            if(data?.data.erro == '1') {
+                alertas.alertaErro(data.data.mensagem)
+                return ;
+            }
+
+            alertas.alertaSucesso(data?.data.mensagem);
+
+            router.push(`/dashboard/bancos/registrar?id=${data?.data.codigo}`);                        
+        } catch (error) {
+            console.log('erro:',error)
+        } finally{
+            setLoad(false);
+        }        
+    }
+
+    const validaCampos = () => {
+        if(!dados?.nome || dados?.nome.trim() == ''){
+            alertas.alertaErro('Nome inválido!');
+            return false; 
+        }
+
+        return true;
     }
 
     const alteraDados = (campo: keyof BancoProps, value:string) => {
@@ -55,7 +109,6 @@ export default function Bancos(){
     }
 
     const alteraDadosTipoConta = (value:string) => {
-        console.log('a')
         alteraDados('tipo_conta', value)
     }
 
@@ -164,28 +217,46 @@ export default function Bancos(){
                                 <Label htmlFor="codigo_cedente">Tipo da Conta</Label>
                                 <SelectDefault 
                                     data={tipoContaData}
-                                    onChange={() => alteraDadosTipoConta}
+                                    onChange={(value) => alteraDados('tipo_conta', value)}
                                 />
                             </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="configint" className="space-y-4">
-                        <p>config</p>
                     </TabsContent>
                 </Tabs>
 
                 <div className="w-full flex gap-2 flex justify-end py-3 ">
                     <Button
                         variant={"outline"}
-                        onClick={() => router.push('/dashboard/financeiro/bancos/consultar')}
+                        onClick={() => router.push('/dashboard/financeiro/bancos/registrar')}
+                        disabled={load}
+                        className='flex gap-2'
                     >
-                        Cancelar
+                        <FontAwesomeIcon icon={faAdd} />
+                        Novo
                     </Button>
 
-                    <Button>
-                        Salvar
+                    <Button
+                        variant={"outline"}
+                        onClick={() => router.push('/dashboard/financeiro/bancos/consultar')}
+                        disabled={load}
+                        className='flex gap-2'
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                        Voltar
                     </Button>
+
+                    <ModalConfirmaOperacao
+                        textButton="Salvar"  
+                        title="Confirmação da operação"
+                        textDescription="Você confirma a atualização ou criação desse cliente?"       
+                        onConfirm={() => Cadastrar()}
+                        onLoad={load}
+                        icon={faSave}  
+                    />
+
                 </div>
             </div>
         </>

@@ -4,23 +4,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react"
+import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faEllipsis, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "@/components/ui/spinner"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader,TableRow } from "@/components/ui/table";
 import NenhumResultadoEncontrado from "@/components/ui/dashboard/nenhum-resultado";
 import { Badge } from "@/components/ui/badge";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
-import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 
 import {
     Pagination,
@@ -39,6 +29,8 @@ import { ClienteProps } from "@/global/types";
 import { SelectDefault } from "@/components/ui/select-default";
 import alertas from "@/global/alertas";
 import ModalConfirmaOperacao from "@/components/ui/dashboard/dialog-confirma";
+import { PAGE_SIZE } from "@/global/constantes";
+import TabelaClientes from "./tabela";
 
 const optionsSelectFiltro = [
     {
@@ -67,11 +59,17 @@ const optionsSelectFiltro = [
     }
 ]
 
+interface ConsultaProps {
+    quantidade_registros:string,
+    itens:ClienteProps[]
+}
+
 export default function ClientesConsulta(){
     const[load, setLoad] = useState(false);
     const[isMounted, setIsMounted] = useState(false);
 
-    const[dados, setDados] = useState<ClienteProps[]>([]);
+    const[dados, setDados] = useState<ConsultaProps>();
+
     const[filtro, setFiltro] = useState('');
     const[conteudo, setConteudo] = useState('');
 
@@ -85,10 +83,9 @@ export default function ClientesConsulta(){
         try {
             if(filtro !== '' && filtro !== 'geral' && conteudo.trim() == '') return ;
 
-
-            let cUrl = isPagination ? 
-                       `/clientes?filtro=${filtro}&conteudo=${conteudo}&pageSize=10` :
-                       `/clientes?filtro=${params.get('filtro')}&conteudo=${params.get('conteudo')}&page=${params.get('page')}&pageSize=10`
+            let cUrl = !isPagination ? 
+                       `/clientes?filtro=${filtro}&conteudo=${conteudo}&page=${params.get('page')}&pageSize=${PAGE_SIZE}` :
+                       `/clientes?filtro=${params.get('filtro')}&conteudo=${params.get('conteudo')}&page=${params.get('page')}&pageSize=${PAGE_SIZE}`
 
             const data = await funcoes.get(cUrl);
 
@@ -98,7 +95,6 @@ export default function ClientesConsulta(){
                 alertas.alertaErro(data.data.mensagem)
                 return ;
             }
-            console.log(data.data)
 
             setDados(data.data)                        
         } catch (error) {
@@ -150,7 +146,9 @@ export default function ClientesConsulta(){
     const trataLinks = () => {
         const itensPorPagina = 10;
 
-        const totalPaginas = Math.ceil(100 / itensPorPagina);
+        const quantidade_registros = funcoes.formatarNumero(dados?.quantidade_registros || '100')
+
+        const totalPaginas = Math.ceil(quantidade_registros / itensPorPagina);
 
         const links = [];
 
@@ -181,8 +179,9 @@ export default function ClientesConsulta(){
     }
 
     const trataPaginacaoUrl = () => {
+             
         try {
-            if(params.get('page') !== ''){
+            if(params.get('page') != null && params.get('page') !== ''){
                 buscaDados(true);
                 setFiltro(params.get('filtro') || '');
                 setConteudo(params.get('conteudo') || '');                
@@ -206,77 +205,16 @@ export default function ClientesConsulta(){
     if(!isMounted) return null
 
     const listaclientes = () => {
+
         return (
             <>
-            <div className="w-full py-2">
-                { trataPaginacao() }        
-            </div>
-            <div className="rounded-md border">
-                <Table>                        
-                    <TableHeader className="max-h-[20px]">
-                        <TableRow className="p-0 py-0 rounded">
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>CPF/CNPJ</TableHead>
-                            <TableHead>Celular</TableHead>
-                            <TableHead>Cidade</TableHead>
-                            <TableHead className="text-right"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody className="min-w-full h-[60vh] overflow-y-auto">
-                        { dados.map((cliente:ClienteProps) => {
-                            return ( 
-                                <TableRow key={cliente.codigo}>
-                                    <TableCell className="font-medium">{ funcoes.stripString(cliente.nome,45) }</TableCell>
-                                    <TableCell>{ listaStatus(cliente.ativo) }</TableCell>
-                                    <TableCell>{ cliente.cnpj }</TableCell>
-                                    <TableCell>{ cliente.celuar }</TableCell>
-                                    <TableCell>{ funcoes.trataCidade(cliente.cidade,cliente.uf) }</TableCell>
-                                    <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger>
-                                            <Button 
-                                                variant={'outline'}
-                                                size={'sm'}
-                                                className="flex h-6 w-6 p-0 data-[state=open]:bg-muted"
-                                            >
-                                                <FontAwesomeIcon icon={faEllipsis} className="w-4 h-3"/>
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[160px]">                                            
-                                            <DropdownMenuItem 
-                                                className="flex gap-3 "
-                                                onClick={() => router.push(`/dashboard/clientes/registrar?id=${cliente.codigo}`)}
-                                            >
-                                                <FontAwesomeIcon icon={faEdit} className="w-3 h-3 text-muted-foreground" />
-                                                Editar
-                                            </DropdownMenuItem>
-                                            
-                                            <DropdownMenuItem 
-                                                className="flex gap-3"
-                                                onClick={() => router.push(`/dashboard/clientes/registrar?id=${cliente.codigo}`)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 text-muted-foreground" />
-                                                Excluir
-                                            </DropdownMenuItem>
-                                            <ModalConfirmaOperacao />
-                                        </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
-            </div>
+                <div className="w-full py-2">
+                    { trataPaginacao() }        
+                </div>
+
+                <TabelaClientes clientes={dados?.itens}/>    
             </>
         )         
-    }
-
-    const listaStatus = (status?:string) => {
-        return status === 'S' ? 
-            <Badge variant={'outline'}>Ativo</Badge> : 
-            <Badge variant={'outline'} className="text-destructive bg-white border-destructive">Inativo</Badge>
     }
 
     return (
@@ -334,7 +272,7 @@ export default function ClientesConsulta(){
 
             <div className="w-full mt-3 mb-4 min-h-[200px]">
 
-                { dados?.length === 0 ? <NenhumResultadoEncontrado /> : listaclientes() }                
+                { !dados?.itens || dados?.itens.length === 0 ? <NenhumResultadoEncontrado /> : listaclientes() }                
 
             </div>
     
