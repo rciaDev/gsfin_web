@@ -20,21 +20,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAdd, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import ModalConfirmaOperacao from "@/components/ui/dashboard/dialog-confirma";
 import { faSave } from "@fortawesome/free-regular-svg-icons";
-
-interface BancoProps{
-    codigo?:string
-    nome?:string
-    telefone?:string
-    contato?:string
-    codigo_banco?:string
-    agencia?:string
-    conta_corrente?:string
-    codigo_cedente?:string
-    titular_conta?:string
-    cpf_cnpj?:string
-    tipo_conta?:string,
-    ativo?:string
-}
+import { BancoProps } from "@/global/types";
 
 const tipoContaData = [
     {
@@ -58,8 +44,8 @@ export default function Bancos(){
         agencia:'',
         conta_corrente:'',
         codigo_cedente:'',
-        titular_conta:'',
-        cpf_cnpj:'',
+        titular_nome:'',
+        titular_cpf:'',
         tipo_conta:'',
         ativo:'S'
     });
@@ -169,10 +155,30 @@ export default function Bancos(){
                                     onChange={(e) => alteraDados('telefone', e.target.value)}                                    
                                 />
                             </div>
+
+                            <div className="w-[20%]">
+                                <Label htmlFor="telefone">Nome do Titular</Label>
+                                <Input 
+                                    type="text" 
+                                    id="telefone"
+                                    value={dados?.titular_nome}
+                                    onChange={(e) => alteraDados('titular_nome', e.target.value)}                                    
+                                />
+                            </div>
+
+                            <div className="w-[20%]">
+                                <Label htmlFor="telefone">CPF/CNPJ do Titular</Label>
+                                <Input 
+                                    type="text" 
+                                    id="telefone"
+                                    value={dados?.titular_cpf}
+                                    onChange={(e) => alteraDados('titular_cpf', funcoes.formatarCpf(e.target.value))} 
+                                />
+                            </div>
                         </div>
 
                         <div className="w-full flex gap-4">
-                            <div className="w-[15%]">
+                            <div className="w-[20%]">
                                 <Label htmlFor="codigo_banco">Código do Banco</Label>
                                 <Input 
                                     type="text" 
@@ -193,7 +199,7 @@ export default function Bancos(){
                                 />
                             </div>
 
-                            <div className="w-[15%]">
+                            <div className="w-[20%]">
                                 <Label htmlFor="conta_corrente">Conta Corrente</Label>
                                 <Input 
                                     type="text" 
@@ -213,7 +219,7 @@ export default function Bancos(){
                                 />
                             </div>
 
-                            <div className="w-[20%]">
+                            <div className="w-[20%] pr-0">
                                 <Label htmlFor="codigo_cedente">Tipo da Conta</Label>
                                 <SelectDefault 
                                     data={tipoContaData}

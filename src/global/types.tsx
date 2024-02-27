@@ -36,20 +36,19 @@ interface ClienteProps{
 }
 
 interface BancoProps{
-    codigo?:string
-    nome?:string
-    telefone?:string
-    contato?:string
-    codigo_banco?:string
-    agencia?:string
-    conta_corrente?:string
-    codigo_cedente?:string
-    titular_conta?:string
-    cpf_cnpj?:string
-    tipo_conta?:string,
-    ativo?:string
+    codigo?:string;
+    nome?:string;
+    telefone?:string;
+    contato?:string;
+    codigo_banco?:string;
+    agencia?:string;
+    conta_corrente?:string;
+    codigo_cedente?:string;
+    tipo_conta?:string;
+    titular_nome?:string;
+    titular_cpf?:string;
+    ativo?:string;
 }
-
 
 type CepProps = {
     logradouro:string,
